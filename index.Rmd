@@ -762,7 +762,7 @@ class: middle
 
 ## R for Mass Spectrometry book
 
-#### https://rformassspectrometry.github.io/docs/
+#### https://rformassspectrometry.github.io/book/
 
 
 ```{r echo=FALSE, out.width='75%', fig.align = 'center'}
