@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Mass spectrometry-based proteomics</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Laurent Gatto - @lgatto@fosstodon.org" />
+    <script src="index_files/header-attrs-2.27/header-attrs.js"></script>
+    <script src="index_files/xaringanExtra-webcam-0.0.1/webcam.js"></script>
+    <script id="xaringanExtra-webcam-options" type="application/json">{"width":"200","height":"200","margin":"1em"}</script>
+    <link href="index_files/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="index_files/tile-view-0.2.6/tile-view.js"></script>
+    <script src="index_files/xaringanExtra_fit-screen-0.2.6/fit-screen.js"></script>
+    <link href="index_files/xaringanExtra-extra-styles-0.2.6/xaringanExtra-extra-styles.css" rel="stylesheet" />
+    <link href="index_files/panelset-0.3.0/panelset.css" rel="stylesheet" />
+    <script src="index_files/panelset-0.3.0/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="my.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Mass spectrometry-based proteomics
+]
+.subtitle[
+## Statistical Data Analysis for Genome-Scale Biology
+]
+.author[
+### Laurent Gatto - <span class="citation">@lgatto</span><span class="citation">@fosstodon.org</span>
+]
+.date[
+### 27 June 2024, Brixen
+]
+
+---
+
+
+
+
+
+
+
+## On the menu
+
+.left-col-50[
+
+1. The **R for Mass Spectrometry** initiative
+2. Mass spectrometry-based proteomics
+3. MS-based single-cell proteomics
+4. Practical intro
+
+]
+
+.right-col-50[
+
+### Slides available (CC-BY-SA) at [https://bit.ly/CSAMA2024](https://bit.ly/CSAMA2024)
+
+]
+
+
+---
+class: middle, center, inverse
+
+# R for Mass Spectrometry
+
+
+.left-col-75[
+
+## R software for the analysis and interpretation of high throughput mass spectrometry assays
+
+]
+
+.right-col-25[
+
+&lt;img src="https://github.com/rformassspectrometry/stickers/raw/master/sticker/RforMassSpectrometry.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+### www.rformassspectrometry.org
+
+---
+background-image: url("./figs/rforms.png")
+background-size: contain
+
+???
+
+- **Home**: The aim of the RforMassSpectrometry initiative is to
+  provide efficient, thoroughly documented, tested and flexible R
+  software for the analysis and interpretation of high throughput mass
+  spectrometry assays, including proteomics and metabolomics
+  experiments. The project formalises the longtime collaborative
+  development efforts of its core members under the
+  RforMassSpectrometry organisation to facilitate dissemination and
+  accessibility of their work.
+- All packages get submitted to **Bioconductor**.
+- **Packages** - and see next slide
+- **Contributors** -
+
+
+---
+background-image: url("./figs/r4mspkgs.png")
+background-size: contain
+
+???
+- Go back to homepage to mention contributors
+
+---
+class: middle, center, inverse
+
+# How does mass spectrometry work?
+
+---
+class: middle
+
+## Motivation
+
+
+&lt;img src="./figs/overview0.png" width="95%" style="display: block; margin: auto;" /&gt;
+
+???
+
+Coming back to a recurring theme in this course, what's the
+correlation between RNA and proteins? I would like to step back a bit,
+and invite you to think about the data underlying these correlations.
+
+From a 2011 study that compared the expression profiles of 3 cell
+lines using RNA-Seq, MS-based proteomics and immunofluorescence
+(protein-specific antibodies).
+
+They observed an overall Spearman correlation of 0.63.
+
+**In what ways to these summaries differ?**
+
+Using a common gene-centric identifier, but
+
+- What do we have along the rows, what are our features? Transcripts
+  on the left. Protein groups on the right.
+- How are these intensities produced?
+
+## Take-home message
+
+These data tables are less similar than they appear.
+
+---
+class: middle
+
+### Mass spectrometry-based proteomics
+
+&lt;img src="./figs/workflow.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+### How does MS work?
+
+1. Digestion of proteins into peptides - as will become clear later,
+   the features we measure in shotgun (or bottom-up) *proteomics* are
+   peptides, **not** proteins.
+
+--
+
+2. On-line liquid chromatography (LC-MS)
+
+--
+
+3. Mass spectrometry (MS) is a technology that **separates** charged
+   molecules (ions, peptides) based on their mass to charge ratio
+   (M/Z).
+
+---
+### Chromatography
+
+MS is generally coupled to chromatography (liquid LC, but can also be
+gas-based GC). The time an analytes takes to elute from the
+chromatography column is the **retention time**.
+
+
+&lt;img src="./figs/chromatogram.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+???
+
+- This is an acquisition. There can be one per sample (with muliple
+  fractions), of samples can be combined/multiplexed and acquired
+  together.
+
+---
+class: middle
+
+
+An mass spectrometer is composed of three parts
+
+.left-col-30[
+
+1. The **source**, that ionises the molecules: examples are Matrix-assisted
+   laser desorption/ionisation (MALDI) or electrospray ionisation
+   (ESI).
+2. The **analyser**, that separates the ions: Time of flight (TOF) or Orbitrap.
+3. The **detector** that quantifies the ions.
+
+]
+
+.right-col-70[
+
+&lt;img src="./figs/SchematicMS2.png" width="85%" style="display: block; margin: auto;" /&gt;
+]
+
+
+In **data dependent acquisition** (DDA), *individual* ions go through
+that cylce at least twice (MS2, tandem MS, or MSMS). Before the second
+cycle, individual *precursor* ions a selected and broken into
+*fragment* ions.
+
+
+???
+
+Before MS:
+- Restriction with enzyme, typically trypsine.
+- Off-line fractionation.
+
+An mass spectrometer is composed of three components:
+
+1. The *source*, that ionises the molecules: examples are Matrix-assisted
+   laser desorption/ionisation (MALDI) or electrospray ionisation
+   (ESI).
+2. The *analyser*, that separates the ions: Time of flight (TOF) or Orbitrap.
+3. The *detector* that quantifies the ions.
+
+Ions typically go through that cylce at least twice (MS2, tandem MS or
+MSMS). Before the second cycle, individual *precursor* ions a
+selected, broken into fragment ions.
+
+???
+
+- Important point here: if a peptides does not ionise (well), it won't
+  "fly" in analyser, and thus won't be detected. -&gt; **missing values**
+
+---
+class: middle center
+
+![Separation and detection of ions in a mass spectrometer.](./figs/mstut.gif)
+
+---
+class: middle
+
+
+.left-col-75[
+&lt;img src="./figs/MS1-MS2-spectra.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.right-col-25[
+
+Data dependent acquisition (DDA):
+
+- parent ions in the MS1 spectrum (left)
+- selected fragment ions MS2 spectra (right).
+
+]
+
+???
+
+Highlight
+- Some peptides might not ionise (well) -&gt; no ions -&gt; **missing data**
+- Low abundanec (too low, below limit of detection) -&gt; **missing data**
+- Semi-stochastic nature of MS -&gt; **missing data**
+- Computational "drop-outs" (see later) -&gt; **missing data**
+- Data dependent acquisition (DDA)
+
+Please keep this MS space and the semi-stochastic nature of MS
+acquisition in mind , as I will come back to it later.
+
+---
+class: middle, center, inverse
+
+# Raw MS data
+
+---
+class: middle center
+
+.left-col-50[
+![MS1 spectra over retention time.](./figs/F02-3D-MS1-scans-400-1200-lattice.png)
+]
+
+.right-col-50[
+![MS2 spectra interleaved between two MS1 spectra.](./figs/F02-3D-MS1-MS2-scans-100-1200-lattice.png)
+]
+
+???
+
+- Please keep this MS space and the semi-stochastic nature of MS
+  acquisition in mind , as I will come back to it later.
+
+---
+class: middle
+
+## Spectra objects
+
+&lt;img src="https://rformassspectrometry.github.io/book/img/raw.png" width="95%" style="display: block; margin: auto;" /&gt;
+---
+class: middle
+
+
+.left-col-75[
+
+
+``` r
+&gt; library(Spectra)
+&gt; basename(fls &lt;- dir(system.file("sciex", package = "msdata"),
+                      full.names = TRUE))
+[1] "20171016_POOL_POS_1_105-134.mzML"
+[2] "20171016_POOL_POS_3_105-134.mzML"
+&gt; Spectra(fls)
+MSn data (Spectra) with 1862 spectra in a MsBackendMzR backend:
+       msLevel     rtime scanIndex
+     &lt;integer&gt; &lt;numeric&gt; &lt;integer&gt;
+1            1     0.280         1
+2            1     0.559         2
+3            1     0.838         3
+4            1     1.117         4
+5            1     1.396         5
+...        ...       ...       ...
+1858         1   258.636       927
+1859         1   258.915       928
+1860         1   259.194       929
+1861         1   259.473       930
+1862         1   259.752       931
+ ... 33 more variables/columns.
+
+file(s):
+20171016_POOL_POS_1_105-134.mzML
+20171016_POOL_POS_3_105-134.mzML
+```
+]
+
+.right-col-25[
+
+&lt;img src="https://github.com/rformassspectrometry/Spectra/raw/master/logo.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+class: middle, center, inverse
+
+# Peptide identification
+
+???
+
+Using MS2 scans
+
+---
+###  Identification: fragment ions
+
+&lt;img src="./figs/frag.png" width="95%" style="display: block; margin: auto;" /&gt;
+???
+
+- Nitrogen
+
+---
+###  Identification: Peptide-spectrum matching (PSM)
+
+Matching **expected** and *observed* spectra:
+
+
+``` r
+&gt; PSMatch::calculateFragments("SIGFEGDSIGR")
+           mz  ion type pos z        seq
+1    88.03931   b1    b   1 1          S
+2   201.12337   b2    b   2 1         SI
+3   258.14483   b3    b   3 1        SIG
+4   405.21324   b4    b   4 1       SIGF
+5   534.25583   b5    b   5 1      SIGFE
+6   591.27729   b6    b   6 1     SIGFEG
+7   706.30423   b7    b   7 1    SIGFEGD
+8   793.33626   b8    b   8 1   SIGFEGDS
+9   906.42032   b9    b   9 1  SIGFEGDSI
+10  963.44178  b10    b  10 1 SIGFEGDSIG
+11  175.11895   y1    y   1 1          R
+12  232.14041   y2    y   2 1         GR
+13  345.22447   y3    y   3 1        IGR
+14  432.25650   y4    y   4 1       SIGR
+15  547.28344   y5    y   5 1      DSIGR
+16  604.30490   y6    y   6 1     GDSIGR
+ [ reached getOption("max.print") -- omitted 16 rows ]
+```
+
+---
+class: middle
+
+###  Identification: Peptide-spectrum matching (PSM)
+
+Matching *expected* and **observed** spectra:
+
+&lt;img src="./figs/annotated-spectrum.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+???
+
+Performed by **search engines** such as Mascot, MSGF+, Andromeda, ...
+
+---
+### Identification: database
+
+
+![Uniprot human proteome](./figs/uniprot1.png)
+
+
+???
+
+## Where do the peptides come from?
+
+### [Human proteome](https://www.uniprot.org/help/human_proteome)
+
+In 2008, a draft of the complete human proteome was released from
+UniProtKB/Swiss-Prot: the approximately 20,000 putative human
+protein-coding genes were represented by one UniProtKB/Swiss-Prot
+entry, tagged with the keyword 'Complete proteome' and later linked to
+proteome identifier UP000005640. This UniProtKB/Swiss-Prot H. sapiens
+proteome (manually reviewed) can be considered as complete in the
+sense that it contains one representative (**canonical**) sequence for
+each currently known human gene. Close to 40% of these 20,000 entries
+contain manually annotated alternative isoforms representing over
+22,000 additional sequences
+
+
+## [What is the canonical sequence?](https://www.uniprot.org/help/canonical_and_isoforms)
+
+To reduce redundancy, the UniProtKB/Swiss-Prot policy is to describe
+all the protein products encoded by one gene in a given species in a
+single entry. We choose for each entry a canonical sequence based on
+at least one of the following criteria:
+
+1. It is the most prevalent.
+2. It is the most similar to orthologous sequences found in other species.
+3. By virtue of its length or amino acid composition, it allows the
+   clearest description of domains, isoforms, polymorphisms,
+   post-translational modifications, etc.
+4. In the absence of any information, we choose the longest sequence.
+
+
+## Are all isoforms described in one UniProtKB/Swiss-Prot entry?
+
+Whenever possible, all the protein products encoded by one gene in a
+given species are described in a single UniProtKB/Swiss-Prot entry,
+including isoforms generated by alternative splicing, alternative
+promoter usage, and alternative translation initiation (*). However,
+some alternative splicing isoforms derived from the same gene share
+only a few exons, if any at all, the same for some 'trans-splicing'
+events. In these cases, the divergence is obviously too important to
+merge all protein sequences into a single entry and the isoforms have
+to be described in separate 'external' entries.
+
+## UniProt [downloads](https://www.uniprot.org/downloads)
+
+---
+class: middle
+
+### Identification: decoy to control false identification
+
+&lt;img src="./figs/pr-2007-00739d_0004.gif" width="65%" style="display: block; margin: auto;" /&gt;
+
+From Käll *et al.* [Posterior Error Probabilities and False Discovery
+Rates: Two Sides of the Same Coin](https://pubs.acs.org/doi/abs/10.1021/pr700739d).
+
+???
+
+
+- (global) FDR = B/(A+B)
+- (local) fdr = PEP = b/(a+b)
+
+This is the same as Wolfgang's slide: Basic problem: binary decision
+
+---
+###  Identification: Protein inference
+
+.left-col-25[
+- Keep only reliable peptides
+- From these peptides, infer proteins.
+- If proteins can't be resolved due to shared peptides, merge them
+  into **protein groups** of indistinguishable or non-differentiable
+  proteins.
+
+]
+
+.right-col-75[
+&lt;img src="./figs/nbt0710-647-F2.gif" width="100%" style="display: block; margin: auto;" /&gt;
+From [Qeli and Ahrens
+(2010)](http://www.ncbi.nlm.nih.gov/pubmed/20622826).
+
+]
+
+&lt;!-- --- --&gt;
+&lt;!-- class: middle --&gt;
+
+&lt;!-- ![Peptide evidence classes](./figs/F5_large.jpg) --&gt;
+&lt;!-- From [Nesvizhskii and Aebersold --&gt;
+&lt;!-- (2005)](http://www.ncbi.nlm.nih.gov/pubmed/16009968). --&gt;
+
+&lt;!-- ??? --&gt;
+
+&lt;!-- Basic peptide grouping scenarios. --&gt;
+&lt;!-- - a. distinct protein identifications. --&gt;
+&lt;!-- - b. differentiable protein identifications. --&gt;
+&lt;!-- - c. indistinguishable protein identifications. --&gt;
+&lt;!-- - d. subset protein identification. --&gt;
+&lt;!-- - e. subsumable protein identification. --&gt;
+&lt;!-- - f. an example of a protein group where one protein can explain all --&gt;
+&lt;!--   observed peptides, but its identification is not conclusive. --&gt;
+
+---
+class: middle
+
+
+``` r
+&gt; library(PSMatch)
+&gt; basename(idf &lt;- msdata::ident(full.names = TRUE))
+[1] "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01-20141210.mzid"
+&gt; PSM(idf)
+PSM with 5802 rows and 35 columns.
+names(35): sequence spectrumID ... subReplacementResidue subLocation
+```
+
+---
+class: middle, center, inverse
+
+# Quantitation
+
+---
+
+### Quantitation
+
+
+|    |Label-free |Labelled   |
+|:---|:----------|:----------|
+|MS1 |XIC        |SILAC, 15N |
+|MS2 |Counting   |iTRAQ, TMT |
+
+
+- Quantitation data at the PSM/precursor or peptide level.
+- Data need to be *aggregated* into protein level data.
+
+???
+
+- Decision on quant method will depend on what your core facility is
+  expert in and the experimental design.
+
+---
+class: middle
+
+### Aggregation
+
+&lt;img src="https://rformassspectrometry.github.io/QFeatures/articles/QFeatures_files/figure-html/featuresplot-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle
+
+### Aggregation
+
+&lt;img src="https://rformassspectrometry.github.io/QFeatures/articles/QFeatures_files/figure-html/plotstat-1.png" width="65%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle
+
+### Aggregation
+
+&lt;img src="figs/vis-1.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle
+
+## QFeatures objects
+
+
+.left-col-75[
+
+
+
+``` r
+&gt; library(QFeatures)
+&gt; data(hlpsms)
+&gt; hl &lt;- readQFeatures(hlpsms, ecol = 1:10, name = "psms")
+&gt; An instance of class QFeatures containing 1 assays:
+ [1] psms: SummarizedExperiment with 3010 rows and 10 columns
+&gt; hl &lt;- aggregateFeatures(hl, "psms", "Sequence",
+                          name = "peptides", fun = colMeans) |&gt;
+      aggregateFeatures("peptides", "ProteinGroupAccessions",
+                        name = "proteins", fun = colMeans)
+&gt; hl
+An instance of class QFeatures containing 3 assays:
+ [1] psms: SummarizedExperiment with 3010 rows and 10 columns
+ [2] peptides: SummarizedExperiment with 2923 rows and 10 columns
+ [3] proteins: SummarizedExperiment with 1596 rows and 10 columns
+```
+
+]
+
+.right-col-25[
+
+&lt;img src="https://raw.githubusercontent.com/rformassspectrometry/stickers/master/QFeatures/QFeatures.png" width="80%" style="display: block; margin: auto 0 auto auto;" /&gt;
+]
+
+???
+
+- Using `SummarizedExperiment` class.
+
+---
+class: middle
+
+### MS workflow (with packages)
+
+&lt;img src="./figs/workflow2.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+class: middle, center, inverse
+
+.left-col-75[
+
+# Mass spectrometry-based
+# single-cell proteomics
+
+]
+
+.right-col-25[
+
+&lt;img src="figs/scp.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+class: middle
+
+- **August 2019**: in a Nature Methods Technology Feature
+  ([10.1038/s41592-019-0540-6](https://www.nature.com/articles/s41592-019-0540-6)),
+  Vivien Marx *dreamt of single-cell proteomics*.
+
+- **March 2023**: Nature Methods published a special issue with a
+  *Focus on single-cell proteomics*
+  ([www.nature.com/collections/bdfhafhdeb](www.nature.com/collections/bdfhafhdeb)).
+
+???
+
+- Become relevant in recent years, say 2019
+
+- Reminder: no PCR for proteins/peptides
+
+- Possible through better sample preparation, reduction of loss of
+  material, miniaturisation, automation, better MS, greater
+  sensitivity, DDA and DIA, LFQ and labelling, ...
+
+---
+class: middle
+
+
+|          | FC                   | scRNA-Seq             | SCP               |
+|:---------|:---------------------|:----------------------|-------------------|
+| features | 10                   | `\(10^{4}\)`              | `\(10^{3}\)`          |
+| cells    | `\(10^{6}\)`             | `\(10^{4}\)`              | `\(10^{3}\)`          |
+| samples  | 10 - 100             | 1 - 10                | 1 ...             |
+|          | sample &lt;br /&gt; throughput | feature &lt;br /&gt; throughput | functional &lt;br /&gt; PTM |
+
+???
+
+- RNA = intention vs. Protein = action
+- Inference of direct regulatory interactions with minimal assumptions
+  (Slavov:2022).
+
+
+---
+class: middle
+
+Data processing/analysis
+
+- *same* as previously
+
+With substantial exacerbation of
+
+- Batch effects (1 or 16 cells par MS acquisition) ([Vanderaa and
+  Gatto (2021)](http://dx.doi.org/10.1080/14789450.2021.1988571))
+- Missing values ([Vanderaa and Gatto
+  (2023)](https://arxiv.org/abs/2304.06654))
+
+Software and data
+
+- `scp`: https://bioconductor.org/packages/scp (uses
+  [QFeatures](https://bioconductor.org/packages/QFeatures) and
+  [SingleCellExperiment](https://bioconductor.org/packages/SingleCellExperiment))
+- `scpdata`: https://bioconductor.org/packages/scpdata
+
+---
+class: middle
+
+
+&lt;img src="figs/batch.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+Data from [Specht et al. (2021)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02267-5).
+
+???
+
+- Seminal dataset published by (Specht et al. (2021))
+- 1096 macrophages, 394 monocytes (after QC)
+- 9354 peptides, 3042 proteins
+- Pre-print, data and code available since 2019
+---
+class: middle
+
+
+&lt;img src="figs/na.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+Data from [Specht et al. (2021)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02267-5).
+
+---
+class: middle
+
+
+$$ y = {\color{Blue}{MS~acquisition}} + {\color{Blue}{TMT~channel}} + {\color{Orange}{Cell~type}} + {\color{red} \epsilon} $$
+
+&lt;img src="figs/effect_MS.png" style="height:210px;"/&gt;
+&lt;img src="figs/effect_TMT.png" style="height:210px;"/&gt;
+&lt;img src="figs/effect_Cell.png" style="height:210px;"/&gt;
+&lt;img src="figs/effect_res.png" style="height:210px;"/&gt;
+
+Data from [Leduc et al (2022)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02817-5).
+
+???
+
+- Data from Leduc:2022
+- nano-ProteOmic sample Preparation
+- 877 monocytes, 878 melanoma cells
+- 19374 peptides, 3348 proteins
+- Availability of data and code
+
+
+- Different **effect matrices** from the coefficients.
+- Quantify the contribution of these different **known** (technical
+  and biological) and **unknown** effects.
+
+---
+class: middle, center, inverse
+
+# Proteomics practicals
+
+---
+class: middle
+
+## R for Mass Spectrometry book
+
+#### https://rformassspectrometry.github.io/docs/
+
+
+&lt;img src="./figs/toc.png" width="75%" style="display: block; margin: auto;" /&gt;
+
+???
+
+- Chapters on raw data, identification, quantitative data.
+- Last chapter has links to specific workshops on proteomics and
+  metabolomics.
+- If you are interested in a package in particular (Spectra, PSMatch,
+  QFeatures, ...), have a look at the vignettes.
+
+---
+class: middle
+
+.left-col-75[
+
+## EuroBioc2023, Ghent - https://eurobioc2023.bioconductor.org/
+
+## Positions in the CBIO lab (Brussels) - https://lgatto.github.io/tags/#job
+
+## Questions?
+
+]
+
+.right-col-25[
+
+
+&lt;img src="figs/EuroBioC2023.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="figs/tshirt4.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
