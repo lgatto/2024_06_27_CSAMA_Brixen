@@ -780,25 +780,28 @@ knitr::include_graphics('./figs/toc.png')
 ---
 class: middle
 
-.left-col-75[
+.left-col-50[
 
-## EuroBioc2023, Ghent - https://eurobioc2023.bioconductor.org/
-
-## Positions in the CBIO lab (Brussels) - https://lgatto.github.io/tags/#job
-
-## Questions?
+## EuroBioc2024
+## Oxford, 4 - 6 September
+## [eurobioc2024.bioconductor.org](https://eurobioc2024.bioconductor.org/)
 
 ]
 
-.right-col-25[
+.right-col-50[
 
 
 ```{r echo=FALSE, out.width='60%', fig.align = 'center'}
-knitr::include_graphics("figs/EuroBioC2023.png")
+knitr::include_graphics("figs/EuroBioC2024.png")
 ```
 
-```{r echo=FALSE, out.width='100%', fig.align = 'center'}
-knitr::include_graphics('figs/tshirt4.png')
-```
+<!-- ```{r echo=FALSE, out.width='100%', fig.align = 'center'} -->
+<!-- knitr::include_graphics('figs/tshirt4.png') -->
+<!-- ``` -->
 
 ]
+
+---
+class: center, middle
+
+# Questions?
