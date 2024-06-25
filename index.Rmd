@@ -755,6 +755,12 @@ knitr::include_graphics('figs/Workflows_overview.png')
 Systematic review of SCP data analysis ([Vanderaa and Gatto
 (2034)](https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpz1.658)).
 
+???
+
+Diversity wouldn't be a bad thing, but, as you might expect here,
+different analysis workflows lead to different and incompatible
+results.
+
 ---
 class: center, middle, inverse
 
