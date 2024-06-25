@@ -35,7 +35,7 @@ xaringanExtra::use_panelset()
 1. The **R for Mass Spectrometry** initiative
 2. Mass spectrometry-based proteomics
 3. MS-based single-cell proteomics
-4. Practical intro
+4. Lab intro
 
 ]
 
@@ -177,10 +177,46 @@ knitr::include_graphics('./figs/chromatogram.png')
   together.
 
 ---
-class: middle
+
+A mass spectrometer is composed of three parts
+
+.left-col-30[
+
+1. The **source**, that ionises the molecules: examples are Matrix-assisted
+   laser desorption/ionisation (MALDI) or electrospray ionisation
+   (ESI).
+2. The **analyser**, that separates the ions: Time of flight (TOF) or Orbitrap.
+3. The **detector** that quantifies the ions.
+
+]
+
+.right-col-70[
+
+```{r echo=FALSE, out.width='85%', fig.align = 'center'}
+knitr::include_graphics('./figs/SchematicMS2.png')
+```
+]
 
 
-An mass spectrometer is composed of three parts
+<!-- In **data dependent acquisition** (DDA), *individual* ions go through -->
+<!-- that cylce at least twice (MS2, tandem MS, or MSMS). Before the second -->
+<!-- cycle, individual *precursor* ions a selected and broken into -->
+<!-- *fragment* ions (next slides). -->
+
+
+???
+
+- Important point here: if a peptides does not ionise (well), it won't
+  "fly" in analyser, and thus won't be detected. -> **missing values**
+
+---
+class: middle center
+
+![Separation and detection of ions in a mass spectrometer.](./figs/mstut.gif)
+
+---
+
+A mass spectrometer is composed of three parts
 
 .left-col-30[
 
@@ -203,36 +239,7 @@ knitr::include_graphics('./figs/SchematicMS2.png')
 In **data dependent acquisition** (DDA), *individual* ions go through
 that cylce at least twice (MS2, tandem MS, or MSMS). Before the second
 cycle, individual *precursor* ions a selected and broken into
-*fragment* ions.
-
-
-???
-
-Before MS:
-- Restriction with enzyme, typically trypsine.
-- Off-line fractionation.
-
-An mass spectrometer is composed of three components:
-
-1. The *source*, that ionises the molecules: examples are Matrix-assisted
-   laser desorption/ionisation (MALDI) or electrospray ionisation
-   (ESI).
-2. The *analyser*, that separates the ions: Time of flight (TOF) or Orbitrap.
-3. The *detector* that quantifies the ions.
-
-Ions typically go through that cylce at least twice (MS2, tandem MS or
-MSMS). Before the second cycle, individual *precursor* ions a
-selected, broken into fragment ions.
-
-???
-
-- Important point here: if a peptides does not ionise (well), it won't
-  "fly" in analyser, and thus won't be detected. -> **missing values**
-
----
-class: middle center
-
-![Separation and detection of ions in a mass spectrometer.](./figs/mstut.gif)
+*fragment* ions (next slides).
 
 ---
 class: middle
@@ -643,6 +650,8 @@ knitr::include_graphics('figs/scp.png')
 ---
 class: middle
 
+.left-col-50[
+
 - **August 2019**: in a Nature Methods Technology Feature
   ([10.1038/s41592-019-0540-6](https://www.nature.com/articles/s41592-019-0540-6)),
   Vivien Marx *dreamt of single-cell proteomics*.
@@ -650,6 +659,16 @@ class: middle
 - **March 2023**: Nature Methods published a special issue with a
   *Focus on single-cell proteomics*
   ([www.nature.com/collections/bdfhafhdeb](www.nature.com/collections/bdfhafhdeb)).
+
+]
+
+.right-col-50[
+
+```{r echo=FALSE, out.width='80%', fig.align = 'center'}
+knitr::include_graphics('./figs/scp_by_year.png')
+```
+
+]
 
 ???
 
@@ -662,7 +681,8 @@ class: middle
   sensitivity, DDA and DIA, LFQ and labelling, ...
 
 ---
-class: middle
+
+## Single-cell omics
 
 
 |          | FC                   | scRNA-Seq             | SCP               |
@@ -680,25 +700,19 @@ class: middle
 
 
 ---
-class: middle
 
-Data processing/analysis
+## SCP
+
+### Data processing/analysis
 
 - *same* as previously
 
-With substantial exacerbation of
+### With substantial exacerbation of
 
 - Batch effects (1 or 16 cells par MS acquisition) ([Vanderaa and
   Gatto (2021)](http://dx.doi.org/10.1080/14789450.2021.1988571))
 - Missing values ([Vanderaa and Gatto
-  (2023)](https://arxiv.org/abs/2304.06654))
-
-Software and data
-
-- `scp`: https://bioconductor.org/packages/scp (uses
-  [QFeatures](https://bioconductor.org/packages/QFeatures) and
-  [SingleCellExperiment](https://bioconductor.org/packages/SingleCellExperiment))
-- `scpdata`: https://bioconductor.org/packages/scpdata
+  (2023)](https://pubs.acs.org/doi/10.1021/acs.jproteome.3c00227))
 
 ---
 class: middle
@@ -727,6 +741,61 @@ knitr::include_graphics('figs/na.png')
 Data from [Specht et al. (2021)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02267-5).
 
 ---
+class: center, middle, inverse
+
+# What do others do?
+
+---
+class: center
+
+```{r echo=FALSE, out.width='55%', fig.align = 'center'}
+knitr::include_graphics('figs/Workflows_overview.png')
+```
+
+Systematic review of SCP data analysis ([Vanderaa and Gatto
+(2034)](https://currentprotocols.onlinelibrary.wiley.com/doi/10.1002/cpz1.658)).
+
+---
+class: center, middle, inverse
+
+# A principled approach
+
+---
+
+### Software and data
+
+- `scp`: https://bioconductor.org/packages/scp (uses
+  [QFeatures](https://bioconductor.org/packages/QFeatures) and
+  [SingleCellExperiment](https://bioconductor.org/packages/SingleCellExperiment))
+- `scpdata`: https://bioconductor.org/packages/scpdata
+
+### Minimal processing
+
+- Remove low quality precursors and cells
+- Aggregate from precursors into peptides
+- log-transform
+- (Remove features with too many NAs)
+- No imputation
+
+### ANOVA–simultaneous component analysis
+
+- Linear model, including biological and technical effects
+- Use effect matrices for downstream applications (PCA, differential
+  abundance analysis, ...).
+
+---
+
+```{r echo=FALSE, out.width='90%', fig.align = 'center'}
+knitr::include_graphics('figs/scplainer1.png')
+```
+
+---
+
+```{r echo=FALSE, out.width='90%', fig.align = 'center'}
+knitr::include_graphics('figs/scplainer2.png')
+```
+
+---
 class: middle
 
 
@@ -737,20 +806,28 @@ $$ y = {\color{Blue}{MS~acquisition}} + {\color{Blue}{TMT~channel}} + {\color{Or
 <img src="figs/effect_Cell.png" style="height:210px;"/>
 <img src="figs/effect_res.png" style="height:210px;"/>
 
-Data from [Leduc et al (2022)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02817-5).
+Data from [Leduc et al
+(2022)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02817-5). **scplainer**:
+using linear models to understand mass spectrometry-based single-cell
+proteomics data ([Vanderaa and Gatto
+(2024)](https://www.biorxiv.org/content/10.1101/2023.12.14.571792v2)).
 
 ???
-
-- Data from Leduc:2022
-- nano-ProteOmic sample Preparation
-- 877 monocytes, 878 melanoma cells
-- 19374 peptides, 3348 proteins
-- Availability of data and code
-
 
 - Different **effect matrices** from the coefficients.
 - Quantify the contribution of these different **known** (technical
   and biological) and **unknown** effects.
+- Can also be used to **integrate data from different experiments** such as DIA and DDA.
+
+---
+
+```{r echo=FALSE, out.width='60%', fig.align = 'center'}
+knitr::include_graphics('figs/ScpModel-class.png')
+```
+
+**scplainer** method (**scp** package), described in [Vanderaa and
+Gatto
+(2024)](https://www.biorxiv.org/content/10.1101/2023.12.14.571792v2).
 
 ---
 class: middle, center, inverse
