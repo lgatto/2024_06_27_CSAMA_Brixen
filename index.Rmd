@@ -37,6 +37,10 @@ xaringanExtra::use_panelset()
 3. MS-based single-cell proteomics
 4. Lab intro
 
+```{r echo=FALSE, out.width='50%', fig.align = 'center'}
+knitr::include_graphics('figs/CSAMA2024.png')
+```
+
 ]
 
 .right-col-50[
@@ -44,7 +48,6 @@ xaringanExtra::use_panelset()
 ### Slides available (CC-BY-SA) at [https://bit.ly/CSAMA2024](https://bit.ly/CSAMA2024)
 
 ]
-
 
 ---
 class: middle, center, inverse
