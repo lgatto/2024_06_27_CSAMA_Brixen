@@ -810,10 +810,12 @@ class: middle
 
 $$ y = {\color{Blue}{MS~acquisition}} + {\color{Blue}{TMT~channel}} + {\color{Orange}{Cell~type}} + {\color{red} \epsilon} $$
 
-<img src="figs/effect_MS.png" style="height:210px;"/>
-<img src="figs/effect_TMT.png" style="height:210px;"/>
-<img src="figs/effect_Cell.png" style="height:210px;"/>
-<img src="figs/effect_res.png" style="height:210px;"/>
+
+<img src="figs/npop.png" style="height:170px;"/> =
+<img src="figs/effect_MS.png" style="height:170px;"/> +
+<img src="figs/effect_TMT.png" style="height:170px;"/> +
+<img src="figs/effect_Cell.png" style="height:170px;"/> +
+<img src="figs/effect_res.png" style="height:170px;"/>
 
 Data from [Leduc et al
 (2022)](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-022-02817-5). **scplainer**:
@@ -827,6 +829,17 @@ proteomics data ([Vanderaa and Gatto
 - Quantify the contribution of these different **known** (technical
   and biological) and **unknown** effects.
 - Can also be used to **integrate data from different experiments** such as DIA and DDA.
+
+---
+
+```{r echo=FALSE, out.width='60%', fig.align = 'center'}
+knitr::include_graphics('figs/scplainer-fig6.jpg')
+```
+
+Integration of the plexDIA data sets by Leduc et al. and Derks et
+al. ([Vanderaa and Gatto
+(2024)](https://www.biorxiv.org/content/10.1101/2023.12.14.571792v2)).
+
 
 ---
 
