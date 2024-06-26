@@ -28,6 +28,7 @@ xaringanExtra::use_extra_styles(
 xaringanExtra::use_panelset()
 ```
 
+
 ## On the menu
 
 .left-col-50[
@@ -48,6 +49,10 @@ knitr::include_graphics('figs/CSAMA2024.png')
 ### Slides available (CC-BY-SA) at [https://bit.ly/CSAMA2024](https://bit.ly/CSAMA2024)
 
 ]
+
+???
+
+# Mention excellent menu
 
 ---
 class: middle, center, inverse
